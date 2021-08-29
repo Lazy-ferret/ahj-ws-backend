@@ -1,0 +1,25 @@
+{
+  "name": "ws-backend",
+  "version": "1.0.0",
+  "description": "ahj-14 homework http ",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "forever server.js",
+    "watch": "forever -w server.js",
+    "stop": "forever stopall"
+  },
+  "engines": {
+    "node": "11.x"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "forever": "^4.0.1",
+    "koa": "^2.13.1",
+    "koa-body": "^4.2.0",
+    "koa-router": "^10.1.1",
+    "koa2-cors": "^2.0.6",
+    "ws": "^8.2.0"
+  }
+}
