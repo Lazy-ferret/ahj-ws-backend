@@ -41,29 +41,38 @@ const server = http.createServer(app.callback()).listen(port, () => console.log(
 
 const wsServer = new WS.Server({ server }, CLIENTS = []);
 wsServer.on('connection', (ws, req) => {
-  ws.on('close', function close() {
+
+  ws.on('close', () => {
+    let response;
     const ind = CLIENTS.findIndex((elem) => elem === ws);
+    const deletedUser = users[ind].name;
     users.splice(ind, 1);
     CLIENTS.splice(ind, 1);
+    messages.push(new Message('Chat Bot', `User ${deletedUser} left the chat`, date));
+    response = { users, messages };
+    [...wsServer.clients]
+      .filter(o => o.readyState === WS.OPEN)
+      .forEach(o => o.send(JSON.stringify(response)));
   });
+
   ws.on('message', (msg) => {
     const request = JSON.parse(msg);
     let response;
     if (request.login) {
       const userLogged = users.some((user) => user.name === request.login);
-      if (userLogged) response = false;
-      else {
+      if (userLogged) {
+        response = false;
+      } else {
         CLIENTS.push(ws);
         const ind = CLIENTS.findIndex((elem) => elem === ws);
         users.push(new User(request.login, ind));
-        response = users;
+        const joinedUser = users[ind].name;
+        messages.push(new Message('Chat Bot', `User ${joinedUser} join the chat`, date));
+        response = { users, messages };
       }
-    }
-    else if (request.message) {
+    } else if (request.message) {
       const ind = CLIENTS.findIndex((elem) => elem === ws);
       messages.push(new Message(users[ind].name, request.message, date));
-      response = messages;
-    } else if (request.messagesList) {
       response = messages;
     }
     [...wsServer.clients]
